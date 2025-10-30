@@ -1,0 +1,22 @@
+// Logo de Pretensa en base64 para usar en exports desde backend
+export const PRETENSA_LOGO_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF8GlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYjBmOGJlOSwgMjAyMS8xMi8xNS0yMToyNToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9uczBob2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9uczCZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI1LTA5LTMwVDE0OjAwOjAwLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNS0wOS0zMFQxNDowMDowMC0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNS0wOS0zMFQxNDowMDowMC0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6YWJjZGVmZ2gtMTIzNC0xMjM0LTEyMzQtMTIzNDU2Nzg5MDEyIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOmFiY2RlZmdoLTEyMzQtMTIzNC0xMjM0LTEyMzQ1Njc4OTAxMiIgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmFiY2RlZmdoLTEyMzQtMTIzNC0xMjM0LTEyMzQ1Njc4OTAxMiI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6YWJjZGVmZ2gtMTIzNC0xMjM0LTEyMzQtMTIzNDU2Nzg5MDEyIiBzdEV2dDp3aGVuPSIyMDI1LTA5LTMwVDE0OjAwOjAwLTA2OjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjMuMSAoV2luZG93cykiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+';
+
+export const CORPORATE_COLORS = {
+  primary: '#1e5aa8', // Pretensa blue
+  secondary: '#dc2626', // Pretensa red accent
+  accent: '#059669', // Success green
+  warning: '#d97706', // Warning orange
+  error: '#dc2626', // Error red
+  light: '#f8fafc', // Light background
+  dark: '#1f2937', // Dark text
+  white: '#ffffff',
+  pretensaBlue: '#1e5aa8',
+  pretensaRed: '#dc2626'
+};
+
+export const COMPANY_INFO = {
+  name: 'Estructuras Pretensa',
+  address: 'Avenida La Voz del Interior 5500, Córdoba, Argentina',
+  email: 'sistemas@pretensa.com.ar',
+  website: 'www.pretensa.com.ar',
+};

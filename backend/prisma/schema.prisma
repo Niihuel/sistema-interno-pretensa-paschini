@@ -1,0 +1,1123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// SISTEMA DE USUARIOS Y AUTENTICACIÓN AVANZADO
+// ============================================================================
+
+model User {
+  id                        Int                        @id @default(autoincrement())
+  username                  String                     @unique
+  email                     String?
+  passwordHash              String
+  role                      String                     @default("USER")
+  firstName                 String?
+  lastName                  String?
+  isActive                  Boolean                    @default(true)
+  isEmailVerified           Boolean                    @default(false)
+  twoFactorEnabled          Boolean                    @default(false)
+  twoFactorSecret           String?
+  lastLoginAt               DateTime?
+  passwordExpiresAt         DateTime?
+  failedLoginAttempts       Int                        @default(0)
+  lockedUntil               DateTime?
+  sessionToken              String?
+  sessionExpiresAt          DateTime?
+  passwordResetToken        String?
+  passwordResetExpiresAt    DateTime?
+  emailVerificationToken    String?
+  createdBy                 String?
+  updatedBy                 String?
+  deletedAt                 DateTime?
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
+  employeeId                Int?
+  employee                  Employee?                  @relation(fields: [employeeId], references: [id])
+  userRoles                 UserRole[]
+  userPermissions           UserPermission[]
+  userSessions              UserSession[]
+  assignedTickets           Ticket[]                   @relation("AssignedTickets")
+  auditLogs                 AuditLog[]
+  createdByLogs             AuditLog[]                 @relation("CreatedByUser")
+  updatedByLogs             AuditLog[]                 @relation("UpdatedByUser")
+  notifications             Notification[]
+  calendarEvents            CalendarEvent[]
+  calendarEventParticipants CalendarEventParticipant[]
+  dailyBackups              DailyBackup[]
+  pushSubscriptions         PushSubscription[]
+  dashboardLayouts          DashboardLayout[]
+  themes                    Theme[]                    @relation("UserThemes")
+
+  @@index([username])
+  @@index([email])
+  @@index([isActive])
+  @@index([role])
+  @@index([employeeId])
+  @@index([sessionToken])
+  @@index([failedLoginAttempts])
+  @@index([lockedUntil])
+  @@index([lastLoginAt])
+}
+
+model Employee {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  area      String? // Legacy field - will be migrated to areaId
+  areaId    Int? // New relationship field
+  zoneId    Int? // New relationship field
+  email     String?  @unique
+  phone     String?
+  position  String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users             User[]
+  areaRelation      Area?             @relation("EmployeeArea", fields: [areaId], references: [id], onDelete: SetNull)
+  zoneRelation      Zone?             @relation("EmployeeZone", fields: [zoneId], references: [id], onDelete: SetNull)
+  managedAreas      Area[]            @relation("AreaManager")
+  calipsoAccounts   CalipsoAccount[]
+  emailAccounts     EmailAccount[]
+  equipmentAssigned Equipment[]       @relation("AssignedEquipment")
+  inventoryAssigned InventoryItem[]   @relation("AssignedInventory")
+  purchaseRequests  PurchaseRequest[] @relation("PurchaseRequests")
+  qnapAccounts      QnapAccount[]
+  ticketsRequested  Ticket[]          @relation("RequestedTickets")
+  windowsAccounts   WindowsAccount[]
+
+  @@index([firstName])
+  @@index([lastName])
+  @@index([area])
+  @@index([areaId])
+  @@index([zoneId])
+  @@index([email])
+  @@index([status])
+}
+
+// ============================================================================
+// SISTEMA DE ROLES Y PERMISOS JERÁRQUICO
+// ============================================================================
+
+model Role {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  displayName     String
+  description     String?
+  color           String? // Color hex #RRGGBB
+  icon            String?
+  isSystem        Boolean          @default(false)
+  isActive        Boolean          @default(true)
+  level           Int              @default(50) // Nivel jerárquico (mayor = más permisos)
+  priority        Int              @default(500) // Prioridad de asignación
+  maxUsers        Int? // Límite máximo de usuarios con este rol
+  parentRoleId    Int?
+  permissions     String?          @db.Text // JSON de permisos adicionales específicos
+  restrictions    String?          @db.Text // JSON de restricciones específicas
+  conditions      String?          @db.Text // JSON de condiciones de asignación
+  metadata        String?          @db.Text // JSON de metadatos adicionales
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+  parentRole      Role?            @relation("RoleHierarchy", fields: [parentRoleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childRoles      Role[]           @relation("RoleHierarchy")
+
+  @@index([name])
+  @@index([isActive])
+  @@index([isSystem])
+  @@index([level])
+  @@index([parentRoleId])
+  @@index([priority])
+}
+
+model Permission {
+  id               Int                   @id @default(autoincrement())
+  name             String                @unique
+  displayName      String
+  description      String?
+  category         String
+  resource         String
+  action           String
+  scope            String                @default("ALL")
+  conditions       String?               @db.Text
+  isSystem         Boolean               @default(false)
+  isActive         Boolean               @default(true)
+  requiresMFA      Boolean               @default(false)
+  riskLevel        String                @default("LOW")
+  auditRequired    Boolean               @default(true)
+  createdBy        String?
+  updatedBy        String?
+  deletedAt        DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  rolePermissions  RolePermission[]
+  userPermissions  UserPermission[]
+  permissionGroups PermissionGroupItem[]
+
+  @@unique([resource, action, scope], name: "unique_permission_definition")
+  @@index([name])
+  @@index([category])
+  @@index([resource])
+  @@index([action])
+  @@index([scope])
+  @@index([isActive])
+  @@index([riskLevel])
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  conditions   String?    @db.Text // JSON de condiciones específicas para esta combinación
+  grantedBy    String?
+  grantedAt    DateTime   @default(now())
+  isActive     Boolean    @default(true)
+  expiresAt    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model UserRole {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  roleId      Int
+  assignedBy  String?
+  assignedAt  DateTime  @default(now())
+  isActive    Boolean   @default(true)
+  isPrimary   Boolean   @default(false) // Rol principal del usuario
+  isTemporary Boolean   @default(false)
+  expiresAt   DateTime?
+  reason      String? // Razón de asignación
+  conditions  String?   @db.Text // JSON de condiciones específicas
+  metadata    String?   @db.Text // JSON de metadatos adicionales
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([isActive])
+  @@index([isPrimary])
+  @@index([expiresAt])
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  grantedBy    String?
+  grantedAt    DateTime   @default(now())
+  isDenied     Boolean    @default(false) // true = permiso negado explícitamente
+  isActive     Boolean    @default(true)
+  expiresAt    DateTime?
+  reason       String?
+  conditions   String?    @db.Text // JSON de condiciones específicas
+  metadata     String?    @db.Text // JSON de metadatos adicionales
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@index([permissionId])
+  @@index([isDenied])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model PermissionGroup {
+  id          Int                   @id @default(autoincrement())
+  name        String                @unique
+  displayName String
+  description String?
+  category    String
+  color       String?
+  icon        String?
+  isSystem    Boolean               @default(false)
+  isActive    Boolean               @default(true)
+  priority    Int                   @default(500)
+  createdBy   String?
+  updatedBy   String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  permissions PermissionGroupItem[]
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+}
+
+model PermissionGroupItem {
+  id           Int             @id @default(autoincrement())
+  groupId      Int
+  permissionId Int
+  isRequired   Boolean         @default(false) // Permiso obligatorio en el grupo
+  priority     Int             @default(500)
+  createdAt    DateTime        @default(now())
+  group        PermissionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  permission   Permission      @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, permissionId])
+  @@index([groupId])
+  @@index([permissionId])
+}
+
+model UserSession {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  sessionToken String   @unique
+  expiresAt    DateTime
+  isActive     Boolean  @default(true)
+  ipAddress    String?
+  userAgent    String?
+  lastActivity DateTime @default(now())
+  metadata     String?  @db.Text // JSON con información adicional de la sesión
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
+  @@index([isActive])
+  @@index([lastActivity])
+}
+
+// ============================================================================
+// MODELOS DE NEGOCIO EXISTENTES (Equipos, Tickets, etc.)
+// ============================================================================
+
+model Equipment {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  type               String
+  status             String    @default("Activo")
+  location           String?
+  serialNumber       String?   @unique
+  assignedToId       Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  ip                 String?
+  macAddress         String?
+  area               String?
+  brand              String?
+  cpuNumber          String?
+  dvdUnit            Boolean   @default(false)
+  ipAddress          String?
+  model              String?
+  motherboard        String?
+  notes              String?   @db.Text
+  operatingSystem    String?
+  processor          String?
+  purchaseDate       DateTime?
+  ram                String?
+  screenSize         String?
+  storage            String?
+  storageCapacity    String?
+  storageType        String?
+  isPersonalProperty Boolean   @default(false)
+  assignedTo         Employee? @relation("AssignedEquipment", fields: [assignedToId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([ip])
+  @@index([area])
+  @@index([assignedToId])
+}
+
+model Ticket {
+  id             Int                @id @default(autoincrement())
+  title          String
+  description    String?            @db.Text
+  status         String             @default("OPEN")
+  priority       String             @default("MEDIUM")
+  requestorId    Int
+  technicianId   Int? // Ahora apunta a User.id
+  solution       String?            @db.Text
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  closedAt       DateTime?
+  area           String?
+  category       String?
+  ipAddress      String?
+  resolutionTime String?
+  requestor      Employee           @relation("RequestedTickets", fields: [requestorId], references: [id], onUpdate: NoAction)
+  technician     User?              @relation("AssignedTickets", fields: [technicianId], references: [id], onUpdate: NoAction)
+  attachments    TicketAttachment[]
+  comments       TicketComment[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([technicianId])
+  @@index([requestorId])
+  @@index([createdAt])
+  @@index([closedAt])
+}
+
+model TicketAttachment {
+  id           Int      @id @default(autoincrement())
+  ticketId     Int
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String   @db.Text // Cambiado de NVarChar(500) a Text para soportar imágenes en base64
+  uploadedBy   String
+  createdAt    DateTime @default(now())
+  ticket       Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+}
+
+model TicketComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  comment   String   @db.Text
+  author    String
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// MOTOR DE REGLAS DE NEGOCIO
+// ============================================================================
+
+model BusinessRule {
+  id               String                  @id @default(cuid())
+  name             String
+  description      String                  @db.Text
+  type             String // approval, assignment, restriction, notification, validation
+  category         String // purchases, tickets, users, system, etc.
+  isActive         Boolean                 @default(true)
+  priority         Int                     @default(100)
+  roleRestrictions String?                 @db.Text // JSON array de roles que pueden modificar esta regla
+  metadata         String?                 @db.Text // JSON de metadatos adicionales
+  createdBy        String?
+  updatedBy        String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  conditions       BusinessRuleCondition[]
+  actions          BusinessRuleAction[]
+
+  @@index([type])
+  @@index([category])
+  @@index([isActive])
+  @@index([priority])
+}
+
+model BusinessRuleCondition {
+  id        Int          @id @default(autoincrement())
+  ruleId    String
+  field     String // Campo a evaluar (ej: purchaseRequest.amount)
+  operator  String // equals, greater_than, less_than, contains, in, exists
+  value     String?      @db.Text // Valor a comparar (JSON)
+  fieldType String       @default("string") // string, number, boolean, date, array
+  rule      BusinessRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, field, operator])
+  @@index([ruleId])
+}
+
+model BusinessRuleAction {
+  id      Int          @id @default(autoincrement())
+  ruleId  String
+  type    String // approve, reject, require_approval, assign_role, set_field, notify, block
+  target  String? // Target del action (ej: MANAGER, field_name)
+  value   String?      @db.Text // Valor del action (JSON)
+  message String?      @db.Text // Mensaje para el usuario
+  rule    BusinessRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, type])
+  @@index([ruleId])
+}
+
+// ============================================================================
+// REGISTROS DE EJECUCIÓN DE REGLAS
+// ============================================================================
+
+model BusinessRuleExecution {
+  id            Int      @id @default(autoincrement())
+  ruleId        String
+  contextType   String // purchase_request, ticket, user, etc.
+  contextId     String // ID del objeto que activó la regla
+  userId        Int? // Usuario que activó la regla
+  result        String   @db.Text // JSON con el resultado de la evaluación
+  executedAt    DateTime @default(now())
+  executionTime Int // Tiempo en ms que tomó ejecutar la regla
+
+  @@index([ruleId])
+  @@index([contextType])
+  @@index([contextId])
+  @@index([userId])
+  @@index([executedAt])
+}
+
+model Printer {
+  id           Int           @id @default(autoincrement())
+  model        String
+  serialNumber String?       @unique
+  area         String?
+  location     String?
+  ip           String?       @unique
+  macAddress   String?
+  status       String        @default("ACTIVE")
+  notes        String?       @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  consumables  Consumable[]
+  replacements Replacement[]
+
+  @@index([status])
+  @@index([area])
+}
+
+model Consumable {
+  id                Int                       @id @default(autoincrement())
+  itemName          String
+  type              String                    @default("TONER") // TONER, INK, DRUM, etc.
+  color             String?
+  brand             String?
+  model             String?
+  productCode       String? // Código del fabricante
+  quantityAvailable Int                       @default(0)
+  minimumStock      Int                       @default(2) // Stock mínimo antes de alerta
+  unitPrice         Decimal?                  @db.Decimal(10, 2)
+  status            String                    @default("OK")
+  printerId         Int?
+  location          String? // Ubicación en almacén
+  notes             String?                   @db.Text
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  printer           Printer?                  @relation(fields: [printerId], references: [id])
+  replacements      Replacement[]
+  stockMovements    ConsumableStockMovement[]
+
+  @@index([printerId])
+  @@index([status])
+  @@index([type])
+  @@index([productCode])
+}
+
+model ConsumableStockMovement {
+  id            Int        @id @default(autoincrement())
+  consumableId  Int
+  movementType  String // IN (entrada), OUT (salida), ADJUSTMENT (ajuste)
+  quantity      Int // Positivo para entrada, negativo para salida
+  previousStock Int // Stock antes del movimiento
+  newStock      Int // Stock después del movimiento
+  reason        String? // Razón del movimiento
+  reference     String? // Referencia (ej: número de orden, ticket)
+  performedBy   String? // Usuario que realizó el movimiento
+  notes         String?    @db.Text
+  createdAt     DateTime   @default(now())
+  consumable    Consumable @relation(fields: [consumableId], references: [id], onDelete: Cascade)
+
+  @@index([consumableId])
+  @@index([movementType])
+  @@index([createdAt])
+}
+
+model Replacement {
+  id              Int         @id @default(autoincrement())
+  printerId       Int
+  consumableId    Int?
+  replacementDate DateTime
+  completionDate  DateTime?
+  rendimientoDays Int?
+  notes           String?     @db.Text
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  consumable      Consumable? @relation(fields: [consumableId], references: [id], onUpdate: NoAction)
+  printer         Printer     @relation(fields: [printerId], references: [id], onUpdate: NoAction)
+
+  @@index([printerId])
+  @@index([consumableId])
+}
+
+model Purchase {
+  id            Int       @id @default(autoincrement())
+  requestId     String?   @unique
+  itemName      String
+  requestedQty  Int       @default(0)
+  requestedDate DateTime?
+  receivedQty   Int       @default(0)
+  receivedDate  DateTime?
+  pendingQty    Int       @default(0)
+  status        String    @default("PENDING")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+}
+
+model CatalogArea {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
+// ORGANIZATIONAL STRUCTURE - AREAS AND ZONES
+// ============================================================================
+
+model Area {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  code        String?  @unique
+  description String?  @db.Text
+  managerId   Int?
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE
+  color       String? // Hex color for UI
+  icon        String? // Icon identifier
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  manager   Employee?  @relation("AreaManager", fields: [managerId], references: [id], onDelete: SetNull)
+  zones     Zone[]     @relation("AreaZones")
+  employees Employee[] @relation("EmployeeArea")
+
+  @@index([name])
+  @@index([managerId])
+  @@index([status])
+}
+
+model Zone {
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String?
+  description String?  @db.Text
+  areaId      Int?
+  status      String   @default("ACTIVE") // ACTIVE, INACTIVE
+  color       String? // Hex color for UI
+  icon        String? // Icon identifier
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  area      Area?      @relation("AreaZones", fields: [areaId], references: [id], onDelete: SetNull)
+  employees Employee[] @relation("EmployeeZone")
+
+  @@unique([areaId, name])
+  @@index([name])
+  @@index([areaId])
+  @@index([status])
+}
+
+model InventoryItem {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  category           String
+  brand              String?
+  model              String?
+  serialNumber       String?   @unique
+  quantity           Int       @default(0)
+  location           String?
+  status             String    @default("AVAILABLE")
+  condition          String    @default("NEW")
+  notes              String?   @db.Text
+  assignedToId       Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  isPersonalProperty Boolean   @default(false)
+  assignedTo         Employee? @relation("AssignedInventory", fields: [assignedToId], references: [id])
+
+  @@index([category])
+  @@index([status])
+  @@index([assignedToId])
+}
+
+model WindowsAccount {
+  id            Int       @id @default(autoincrement())
+  employeeId    Int
+  username      String
+  domain        String?   @default("PRETENSA")
+  password      String?
+  profilePath   String?
+  homeDirectory String?
+  groups        String?   @db.Text
+  isActive      Boolean   @default(true)
+  lastLogin     DateTime?
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, username, domain])
+  @@index([employeeId])
+  @@index([username])
+}
+
+model QnapAccount {
+  id                Int       @id @default(autoincrement())
+  employeeId        Int
+  username          String
+  password          String?
+  userGroup         String?
+  folderPermissions String?   @db.Text
+  quotaLimit        String?
+  isActive          Boolean   @default(true)
+  lastAccess        DateTime?
+  notes             String?   @db.Text
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  employee          Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, username])
+  @@index([employeeId])
+  @@index([username])
+}
+
+model CalipsoAccount {
+  id          Int       @id @default(autoincrement())
+  employeeId  Int
+  username    String
+  password    String?
+  profile     String?
+  permissions String?   @db.Text
+  modules     String?   @db.Text
+  isActive    Boolean   @default(true)
+  lastLogin   DateTime?
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, username])
+  @@index([employeeId])
+  @@index([username])
+}
+
+model EmailAccount {
+  id           Int       @id @default(autoincrement())
+  employeeId   Int
+  email        String    @unique
+  password     String?
+  accountType  String
+  forwardingTo String?
+  aliases      String?   @db.Text
+  isActive     Boolean   @default(true)
+  lastSync     DateTime?
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([email])
+  @@index([accountType])
+}
+
+model BackupLog {
+  id           Int       @id @default(autoincrement())
+  backupName   String
+  backupType   String
+  source       String
+  destination  String
+  status       String
+  startTime    DateTime?
+  endTime      DateTime?
+  duration     Int?
+  sizeBytes    BigInt?
+  errorMessage String?   @db.Text
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status])
+  @@index([backupType])
+  @@index([startTime])
+}
+
+model PurchaseRequest {
+  id            Int       @id @default(autoincrement())
+  requestNumber String?   @unique
+  requestorId   Int?
+  itemName      String
+  category      String
+  description   String?   @db.Text
+  justification String?   @db.Text
+  quantity      Int       @default(1)
+  estimatedCost Decimal?  @db.Decimal(10, 2)
+  priority      String
+  status        String    @default("PENDING")
+  approvedBy    String?
+  approvalDate  DateTime?
+  purchaseDate  DateTime?
+  receivedDate  DateTime?
+  vendor        String?
+  actualCost    Decimal?  @db.Decimal(10, 2)
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  requestor     Employee? @relation("PurchaseRequests", fields: [requestorId], references: [id])
+
+  @@index([status])
+  @@index([priority])
+  @@index([requestorId])
+  @@index([category])
+}
+
+// ============================================================================
+// AUDITORÍA Y LOGGING AVANZADO
+// ============================================================================
+
+model AuditLog {
+  id             Int       @id @default(autoincrement())
+  userId         Int?
+  userName       String?
+  sessionId      String?
+  action         String // 'CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', etc.
+  entity         String // 'User', 'Equipment', 'Ticket', etc.
+  entityId       Int?
+  oldValue       String?   @db.Text // JSON del estado anterior
+  newValue       String?   @db.Text // JSON del estado nuevo
+  changes        String?   @db.Text // JSON de los cambios específicos
+  ipAddress      String?
+  userAgent      String?
+  source         String? // 'WEB', 'API', 'SYSTEM', 'MOBILE'
+  category       String? // 'SECURITY', 'DATA', 'SYSTEM', 'USER'
+  severity       String    @default("INFO") // 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
+  description    String?
+  isSuccess      Boolean   @default(true)
+  errorMessage   String?   @db.Text
+  duration       Int? // Duración en milisegundos
+  endpoint       String? // Endpoint API si aplica
+  method         String? // HTTP method si aplica
+  statusCode     Int? // HTTP status code si aplica
+  requestId      String? // ID único de la request
+  tags           String?   @db.Text // JSON array de tags
+  metadata       String?   @db.Text // JSON de metadatos adicionales
+  requiresReview Boolean   @default(false)
+  reviewedBy     String?
+  reviewedAt     DateTime?
+  expiresAt      DateTime? // Para limpieza automática
+  createdBy      String?
+  createdAt      DateTime  @default(now())
+  user           User?     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdByUser  User?     @relation("CreatedByUser", fields: [createdBy], references: [username], onDelete: NoAction, onUpdate: NoAction)
+  updatedByUser  User?     @relation("UpdatedByUser", fields: [reviewedBy], references: [username], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId])
+  @@index([userName])
+  @@index([sessionId])
+  @@index([entity])
+  @@index([action])
+  @@index([severity])
+  @@index([category])
+  @@index([source])
+  @@index([isSuccess])
+  @@index([requiresReview])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    Int?
+  type      String
+  title     String
+  message   String?   @db.Text
+  priority  String    @default("NORMAL")
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  data      String?   @db.Text
+  createdAt DateTime  @default(now())
+  user      User?     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Calendar Events
+model CalendarEvent {
+  id           Int                        @id @default(autoincrement())
+  title        String
+  description  String?                    @db.Text
+  startDate    DateTime
+  endDate      DateTime
+  location     String?
+  isAllDay     Boolean                    @default(false)
+  type         String                     @default("GENERAL")
+  status       String                     @default("SCHEDULED")
+  createdById  Int
+  createdAt    DateTime                   @default(now())
+  updatedAt    DateTime                   @updatedAt
+  createdBy    User                       @relation(fields: [createdById], references: [id])
+  participants CalendarEventParticipant[]
+  reminders    CalendarEventReminder[]
+  attachments  CalendarEventAttachment[]
+
+  @@index([createdById])
+  @@index([startDate])
+  @@index([type])
+  @@index([status])
+}
+
+model CalendarEventParticipant {
+  id        Int           @id @default(autoincrement())
+  eventId   Int
+  userId    Int
+  status    String        @default("PENDING")
+  createdAt DateTime      @default(now())
+  event     CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id])
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+model CalendarEventReminder {
+  id         Int           @id @default(autoincrement())
+  eventId    Int
+  reminderAt DateTime
+  method     String        @default("NOTIFICATION")
+  sentAt     DateTime?
+  createdAt  DateTime      @default(now())
+  event      CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([reminderAt])
+}
+
+model CalendarEventAttachment {
+  id           Int           @id @default(autoincrement())
+  eventId      Int
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String        @db.Text
+  uploadedBy   String
+  createdAt    DateTime      @default(now())
+  event        CalendarEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+}
+
+// Dashboard Layouts
+model DashboardLayout {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  layoutId    String   // 'admin', 'tickets', 'custom-1', etc.
+  name        String   @default("default")
+  description String?  @db.Text
+  widgets     Json     // Array of Widget objects
+  layout      String?  @db.Text // Legacy field, mantener por compatibilidad
+  theme       String   @default("blue")
+  isDefault   Boolean  @default(false)
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@unique([userId, layoutId])
+  @@index([userId])
+  @@index([layoutId])
+  @@index([isDefault])
+}
+
+// Daily Backups
+model BackupDisk {
+  id          Int            @id @default(autoincrement())
+  name        String
+  sequence    Int            @unique // Rotation order
+  isActive    Boolean        @default(true)
+  description String?        @db.Text
+  color       String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  backups     DailyBackup[]
+}
+
+model BackupStatus {
+  id                       Int                @id @default(autoincrement())
+  code                     String             @unique
+  label                    String
+  description              String?            @db.Text
+  color                    String?
+  sortOrder                Int                @default(0)
+  isFinal                  Boolean            @default(false)
+  isActive                 Boolean            @default(true)
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  backupZipBackups         DailyBackup[]      @relation("BackupZipStatus")
+  backupAdjuntosBackups    DailyBackup[]      @relation("BackupAdjuntosStatus")
+  calipsoBackups           DailyBackup[]      @relation("CalipsoStatus")
+  presupuestacionBackups   DailyBackup[]      @relation("PresupuestacionStatus")
+  dailyBackupFiles         DailyBackupFile[]
+
+  @@index([code])
+  @@index([isActive])
+}
+
+model BackupFileType {
+  id               Int                @id @default(autoincrement())
+  code             String             @unique
+  name             String
+  description      String?            @db.Text
+  sequence         Int                @unique
+  icon             String?
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  dailyBackupFiles DailyBackupFile[]
+
+  @@index([code])
+  @@index([sequence])
+  @@index([isActive])
+}
+
+model DailyBackupFile {
+  id             Int            @id @default(autoincrement())
+  dailyBackupId  Int
+  fileTypeId     Int
+  statusId       Int
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  dailyBackup    DailyBackup    @relation(fields: [dailyBackupId], references: [id], onDelete: Cascade)
+  fileType       BackupFileType @relation(fields: [fileTypeId], references: [id])
+  status         BackupStatus   @relation(fields: [statusId], references: [id])
+
+  @@unique([dailyBackupId, fileTypeId])
+  @@index([dailyBackupId])
+  @@index([fileTypeId])
+  @@index([statusId])
+}
+
+model BackupNotificationSetting {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique
+  title       String
+  message     String   @db.Text
+  priority    String   @default("NORMAL")
+  isEnabled   Boolean  @default(true)
+  sendHour    Int?
+  sendMinute  Int?
+  daysOfWeek  String?  // Comma-separated ISO weekday numbers (1=Monday)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DailyBackup {
+  id                      Int                @id @default(autoincrement())
+  date                    DateTime           @db.Date
+  diskId                  Int
+  backupZipStatusId       Int
+  backupAdjuntosStatusId  Int
+  calipsoStatusId         Int
+  presupuestacionStatusId Int
+
+  completedAt             DateTime?
+  completedBy             Int?
+  notes                   String?            @db.Text
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
+
+  disk                    BackupDisk         @relation(fields: [diskId], references: [id])
+  backupZipStatus         BackupStatus       @relation("BackupZipStatus", fields: [backupZipStatusId], references: [id])
+  backupAdjuntosStatus    BackupStatus       @relation("BackupAdjuntosStatus", fields: [backupAdjuntosStatusId], references: [id])
+  calipsoStatus           BackupStatus       @relation("CalipsoStatus", fields: [calipsoStatusId], references: [id])
+  presupuestacionStatus   BackupStatus       @relation("PresupuestacionStatus", fields: [presupuestacionStatusId], references: [id])
+  user                    User?              @relation(fields: [completedBy], references: [id])
+  files                   DailyBackupFile[]
+
+  @@unique([date])
+  @@index([date])
+  @@index([diskId])
+  @@index([completedBy])
+}
+
+// ============================================================================
+// PUSH NOTIFICATIONS SUBSCRIPTIONS
+// ============================================================================
+
+model PushSubscription {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  endpoint   String   @db.Text // Push service endpoint URL
+  p256dh     String   @db.Text // Client public key for encryption
+  auth       String   @db.Text // Client auth secret
+  userAgent  String?  @db.Text // Browser/device identification
+  isActive   Boolean  @default(true)
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([userId])
+  @@index([isActive])
+  @@index([lastUsedAt])
+}
+// ============================================================================
+// THEME SYSTEM
+// ============================================================================
+
+enum ThemeScope {
+  GLOBAL
+  DASHBOARD
+  WIDGET
+}
+
+enum ThemeMode {
+  LIGHT
+  DARK
+}
+
+model Theme {
+  id          String     @id @default(cuid())
+  name        String
+  scope       ThemeScope
+  scopeId     String? // dashboardId or widgetId
+  mode        ThemeMode  @default(DARK)
+  userId      Int
+  variables   Json // Record<string, ThemeVariable>
+  parentId    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  user     User    @relation("UserThemes", fields: [userId], references: [id], onDelete: Cascade)
+  parent   Theme?  @relation("ThemeHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Theme[] @relation("ThemeHierarchy")
+
+  @@unique([userId, scope, scopeId, mode])
+  @@index([userId])
+  @@index([scope])
+  @@index([scopeId])
+  @@index([mode])
+  @@index([parentId])
+}

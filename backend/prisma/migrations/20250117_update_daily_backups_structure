@@ -1,0 +1,43 @@
+-- Create Enum for backup file status
+CREATE TYPE "BackupFileStatus" AS ENUM ('PENDING', 'IN_PROGRESS', 'COMPLETED');
+
+-- AlterTable: Add new columns for individual file tracking
+ALTER TABLE "DailyBackup" ADD COLUMN "diskNumber" INTEGER;
+ALTER TABLE "DailyBackup" ADD COLUMN "backupZip_temp" "BackupFileStatus" NOT NULL DEFAULT 'PENDING';
+ALTER TABLE "DailyBackup" ADD COLUMN "backupAdjuntosZip_temp" "BackupFileStatus" NOT NULL DEFAULT 'PENDING';
+ALTER TABLE "DailyBackup" ADD COLUMN "calipsoBak_temp" "BackupFileStatus" NOT NULL DEFAULT 'PENDING';
+ALTER TABLE "DailyBackup" ADD COLUMN "presupuestacionBak_temp" "BackupFileStatus" NOT NULL DEFAULT 'PENDING';
+
+-- Migrate existing data: if any disk was completed (true), mark as COMPLETED, else PENDING
+-- and assign diskNumber based on which disk was true
+UPDATE "DailyBackup" 
+SET 
+  "diskNumber" = CASE
+    WHEN "disk1" = true THEN 1
+    WHEN "disk2" = true THEN 2
+    WHEN "disk3" = true THEN 3
+    WHEN "disk4" = true THEN 4
+    ELSE 1 -- default to disk 1 if none were set
+  END,
+  "backupZip_temp" = CASE WHEN ("disk1" OR "disk2" OR "disk3" OR "disk4") THEN 'COMPLETED'::"BackupFileStatus" ELSE 'PENDING'::"BackupFileStatus" END,
+  "backupAdjuntosZip_temp" = CASE WHEN ("disk1" OR "disk2" OR "disk3" OR "disk4") THEN 'COMPLETED'::"BackupFileStatus" ELSE 'PENDING'::"BackupFileStatus" END,
+  "calipsoBak_temp" = CASE WHEN ("disk1" OR "disk2" OR "disk3" OR "disk4") THEN 'COMPLETED'::"BackupFileStatus" ELSE 'PENDING'::"BackupFileStatus" END,
+  "presupuestacionBak_temp" = CASE WHEN ("disk1" OR "disk2" OR "disk3" OR "disk4") THEN 'COMPLETED'::"BackupFileStatus" ELSE 'PENDING'::"BackupFileStatus" END;
+
+-- Make diskNumber required (NOT NULL)
+ALTER TABLE "DailyBackup" ALTER COLUMN "diskNumber" SET NOT NULL;
+
+-- Drop old disk columns
+ALTER TABLE "DailyBackup" DROP COLUMN "disk1";
+ALTER TABLE "DailyBackup" DROP COLUMN "disk2";
+ALTER TABLE "DailyBackup" DROP COLUMN "disk3";
+ALTER TABLE "DailyBackup" DROP COLUMN "disk4";
+
+-- Rename temp columns to final names
+ALTER TABLE "DailyBackup" RENAME COLUMN "backupZip_temp" TO "backupZip";
+ALTER TABLE "DailyBackup" RENAME COLUMN "backupAdjuntosZip_temp" TO "backupAdjuntosZip";
+ALTER TABLE "DailyBackup" RENAME COLUMN "calipsoBak_temp" TO "calipsoBak";
+ALTER TABLE "DailyBackup" RENAME COLUMN "presupuestacionBak_temp" TO "presupuestacionBak";
+
+-- Create index on diskNumber
+CREATE INDEX "DailyBackup_diskNumber_idx" ON "DailyBackup"("diskNumber");
