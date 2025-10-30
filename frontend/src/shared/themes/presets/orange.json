@@ -1,0 +1,28 @@
+{
+  "id": "orange",
+  "name": "Orange",
+  "description": "A warm orange theme",
+  "source": "shadcn",
+  "variables": {
+    "primary-50": { "hex": "#fff7ed", "rgb": { "r": 255, "g": 247, "b": 237 }, "hsl": { "h": 33, "s": 100, "l": 96 }, "alpha": 1 },
+    "primary-100": { "hex": "#ffedd5", "rgb": { "r": 255, "g": 237, "b": 213 }, "hsl": { "h": 34, "s": 100, "l": 92 }, "alpha": 1 },
+    "primary-200": { "hex": "#fed7aa", "rgb": { "r": 254, "g": 215, "b": 170 }, "hsl": { "h": 32, "s": 98, "l": 83 }, "alpha": 1 },
+    "primary-300": { "hex": "#fdba74", "rgb": { "r": 253, "g": 186, "b": 116 }, "hsl": { "h": 31, "s": 97, "l": 72 }, "alpha": 1 },
+    "primary-400": { "hex": "#fb923c", "rgb": { "r": 251, "g": 146, "b": 60 }, "hsl": { "h": 27, "s": 96, "l": 61 }, "alpha": 1 },
+    "primary-500": { "hex": "#f97316", "rgb": { "r": 249, "g": 115, "b": 22 }, "hsl": { "h": 25, "s": 95, "l": 53 }, "alpha": 1 },
+    "primary-600": { "hex": "#ea580c", "rgb": { "r": 234, "g": 88, "b": 12 }, "hsl": { "h": 21, "s": 90, "l": 48 }, "alpha": 1 },
+    "primary-700": { "hex": "#c2410c", "rgb": { "r": 194, "g": 65, "b": 12 }, "hsl": { "h": 17, "s": 88, "l": 40 }, "alpha": 1 },
+    "primary-800": { "hex": "#9a3412", "rgb": { "r": 154, "g": 52, "b": 18 }, "hsl": { "h": 15, "s": 79, "l": 34 }, "alpha": 1 },
+    "primary-900": { "hex": "#7c2d12", "rgb": { "r": 124, "g": 45, "b": 18 }, "hsl": { "h": 15, "s": 75, "l": 28 }, "alpha": 1 },
+    "background": { "hex": "#1f0f0a", "rgb": { "r": 31, "g": 15, "b": 10 }, "hsl": { "h": 14, "s": 51, "l": 8 }, "alpha": 1 },
+    "foreground": { "hex": "#fff7ed", "rgb": { "r": 255, "g": 247, "b": 237 }, "hsl": { "h": 33, "s": 100, "l": 96 }, "alpha": 1 },
+    "chart-1": { "hex": "#f97316", "rgb": { "r": 249, "g": 115, "b": 22 }, "hsl": { "h": 25, "s": 95, "l": 53 }, "alpha": 1 },
+    "chart-2": { "hex": "#f59e0b", "rgb": { "r": 245, "g": 158, "b": 11 }, "hsl": { "h": 38, "s": 92, "l": 50 }, "alpha": 1 },
+    "chart-3": { "hex": "#84cc16", "rgb": { "r": 132, "g": 204, "b": 22 }, "hsl": { "h": 84, "s": 81, "l": 44 }, "alpha": 1 },
+    "chart-4": { "hex": "#10b981", "rgb": { "r": 16, "g": 185, "b": 129 }, "hsl": { "h": 160, "s": 84, "l": 39 }, "alpha": 1 },
+    "chart-5": { "hex": "#06b6d4", "rgb": { "r": 6, "g": 182, "b": 212 }, "hsl": { "h": 189, "s": 94, "l": 43 }, "alpha": 1 },
+    "chart-6": { "hex": "#3b82f6", "rgb": { "r": 59, "g": 130, "b": 246 }, "hsl": { "h": 221, "s": 91, "l": 60 }, "alpha": 1 },
+    "chart-7": { "hex": "#8b5cf6", "rgb": { "r": 139, "g": 92, "b": 246 }, "hsl": { "h": 258, "s": 90, "l": 66 }, "alpha": 1 },
+    "chart-8": { "hex": "#ec4899", "rgb": { "r": 236, "g": 72, "b": 153 }, "hsl": { "h": 330, "s": 81, "l": 60 }, "alpha": 1 }
+  }
+}

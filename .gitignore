@@ -1,0 +1,21 @@
+# Environment variables for Docker Compose
+
+
+# Docker volumes
+postgres_data/
+pgadmin_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/

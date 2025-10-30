@@ -1,0 +1,92 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from '../providers/AuthProvider'
+import Layout from '../shared/components/layout/Layout'
+
+// Lazy load pages
+import { lazy, Suspense } from 'react'
+
+const HomePage = lazy(() => import('../pages/HomePage'))
+const LoginPage = lazy(() => import('../features/auth/components/LoginPage'))
+const DashboardPage = lazy(() => import('../features/dashboard/components/DashboardPage'))
+const EmployeesPage = lazy(() => import('../features/employees/components/EmployeesPage'))
+const EquipmentPage = lazy(() => import('../features/equipment/components/EquipmentPage'))
+const TicketsPage = lazy(() => import('../features/tickets/components/TicketsPage'))
+const PrintersPage = lazy(() => import('../features/printers/components/PrintersPage'))
+const PurchaseRequestsPage = lazy(() => import('../features/purchase-requests/components/PurchaseRequestsPage'))
+const InventoryPage = lazy(() => import('../features/inventory/components/InventoryPage'))
+const AdminPage = lazy(() => import('../features/admin/components/AdminPage'))
+
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen text-white">Cargando...</div>
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  return <Layout>{children}</Layout>
+}
+
+export default function AppRoutes() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-white">Cargando...</div>}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/employees" element={
+          <PrivateRoute>
+            <EmployeesPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/equipment" element={
+          <PrivateRoute>
+            <EquipmentPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/tickets" element={
+          <PrivateRoute>
+            <TicketsPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/printers" element={
+          <PrivateRoute>
+            <PrintersPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/purchase-requests" element={
+          <PrivateRoute>
+            <PurchaseRequestsPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/inventory" element={
+          <PrivateRoute>
+            <InventoryPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin" element={
+          <PrivateRoute>
+            <AdminPage />
+          </PrivateRoute>
+        } />
+
+        {/* More routes will be added here */}
+      </Routes>
+    </Suspense>
+  )
+}

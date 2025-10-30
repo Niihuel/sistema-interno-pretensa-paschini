@@ -1,0 +1,139 @@
+/* ============================================= */
+/* MEJORAS DE FEEDBACK VISUAL - DASHBOARD GRID */
+/* ============================================= */
+
+/* === FEEDBACK VISUAL MEJORADO === */
+
+/* Widget durante resize - más prominente */
+.react-grid-item.resizing {
+  z-index: 100 !important;
+  transition: none !important;
+  border: 3px solid rgba(99, 102, 241, 0.8) !important;
+  border-radius: 12px !important;
+  box-shadow: 
+    0 0 0 4px rgba(99, 102, 241, 0.2),
+    0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.01) !important;
+}
+
+/* Animación de pulso sutil durante resize */
+@keyframes resize-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 4px rgba(99, 102, 241, 0.2),
+      0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 
+      0 0 0 6px rgba(99, 102, 241, 0.3),
+      0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.react-grid-item.resizing {
+  animation: resize-pulse 2s ease-in-out infinite !important;
+}
+
+/* === PLACEHOLDER (GUÍA VISUAL) MEJORADO === */
+
+.react-grid-placeholder {
+  border: 3px dashed rgba(99, 102, 241, 0.6) !important;
+  border-radius: 12px !important;
+  background: 
+    linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.1) 0%, 
+      rgba(99, 102, 241, 0.05) 100%) !important;
+  transition: none !important;
+  box-shadow: 
+    inset 0 0 20px rgba(99, 102, 241, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animación del placeholder */
+@keyframes placeholder-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.react-grid-placeholder {
+  animation: placeholder-pulse 1.5s ease-in-out infinite !important;
+}
+
+/* Widget siendo arrastrado - feedback más claro */
+.react-grid-item.react-grid-item-dragging {
+  transition: none !important;
+  z-index: 100 !important;
+  box-shadow: 
+    0 0 0 3px rgba(16, 185, 129, 0.4),
+    0 16px 48px rgba(0, 0, 0, 0.4) !important;
+  transform: scale(1.03) rotate(1deg) !important;
+  opacity: 0.95 !important;
+  border: 2px solid rgba(16, 185, 129, 0.6) !important;
+  border-radius: 12px !important;
+}
+
+/* Cursor durante drag */
+.react-grid-item.react-grid-item-dragging * {
+  cursor: grabbing !important;
+}
+
+/* === MEJORAS DE GRID EN MODO EDICIÓN === */
+
+/* Grid más sutil y profesional */
+.dashboard-grid.editing {
+  position: relative;
+  animation: grid-fade-in 0.3s ease-out;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+}
+
+/* Indicador visual de modo edición */
+.dashboard-grid.editing::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.5) 50%,
+    transparent 100%
+  );
+  animation: editing-indicator 3s ease-in-out infinite;
+}
+
+@keyframes editing-indicator {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* === MEJORAS DE WIDGETS EN MODO EDICIÓN === */
+
+/* Hover más claro en modo edición */
+.dashboard-grid.editing .dashboard-grid-item:hover {
+  box-shadow: 
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Widget activo (siendo manipulado) */
+.dashboard-grid-item.active {
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.2) !important;
+  transform: translateZ(0);
+  z-index: 50 !important;
+}

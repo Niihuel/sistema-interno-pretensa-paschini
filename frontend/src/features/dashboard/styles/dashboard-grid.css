@@ -1,0 +1,662 @@
+/* ============================================= */
+/* DASHBOARD GRID - ESTILOS PROFESIONALES      */
+/* Sistema de redimensionamiento y arrastre    */
+/* ============================================= */
+
+/* === HANDLES DE REDIMENSIONAMIENTO MEJORADOS === */
+/* Base de todos los handles - Más visibles y fáciles de agarrar */
+.react-resizable-handle {
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 50;
+}
+
+/* Mostrar handles siempre en modo edición con opacidad media */
+.dashboard-grid.editing .dashboard-grid-item .react-resizable-handle {
+  opacity: 0.5;
+}
+
+/* Handles completamente visibles al hover */
+.dashboard-grid.editing .dashboard-grid-item:hover .react-resizable-handle,
+.react-grid-item.resizing .react-resizable-handle {
+  opacity: 1;
+}
+
+/* LÃ­neas de esquina mejoradas - mÃ¡s grandes y visibles */
+.react-resizable-handle-se::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-right: 5px solid rgba(59, 130, 246, 1);
+  border-bottom: 5px solid rgba(59, 130, 246, 1);
+  border-radius: 0 0 6px 0;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset -2px -2px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* Punto de agarre mÃ¡s grande y visible */
+.react-resizable-handle-se::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 1);
+  border: 3px solid rgba(59, 130, 246, 1);
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* Esquina superior derecha (NE) */
+.react-resizable-handle-ne {
+  top: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  cursor: ne-resize;
+  background: transparent;
+}
+
+.react-resizable-handle-ne::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-right: 5px solid rgba(59, 130, 246, 1);
+  border-top: 5px solid rgba(59, 130, 246, 1);
+  border-radius: 0 6px 0 0;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset -2px 2px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.react-resizable-handle-ne::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 1);
+  border: 3px solid rgba(59, 130, 246, 1);
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* Esquina inferior izquierda (SW) */
+.react-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  cursor: sw-resize;
+  background: transparent;
+}
+
+.react-resizable-handle-sw::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-left: 5px solid rgba(59, 130, 246, 1);
+  border-bottom: 5px solid rgba(59, 130, 246, 1);
+  border-radius: 0 0 0 6px;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset 2px -2px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.react-resizable-handle-sw::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 1);
+  border: 3px solid rgba(59, 130, 246, 1);
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* Esquina superior izquierda (NW) */
+.react-resizable-handle-nw {
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  cursor: nw-resize;
+  background: transparent;
+}
+
+.react-resizable-handle-nw::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  border-left: 5px solid rgba(59, 130, 246, 1);
+  border-top: 5px solid rgba(59, 130, 246, 1);
+  border-radius: 6px 0 0 0;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset 2px 2px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.react-resizable-handle-nw::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 1);
+  border: 3px solid rgba(59, 130, 246, 1);
+  border-radius: 50%;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* === HANDLES DE BORDES === */
+
+/* Borde derecho (E) - MÃ¡s visible y fÃ¡cil de agarrar */
+.react-resizable-handle-e {
+  top: 0;
+  right: -4px;
+  width: 12px;
+  height: 100%;
+  cursor: e-resize;
+  background: transparent;
+}
+
+.react-resizable-handle-e::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 5px;
+  height: 80px;
+  transform: translateY(-50%);
+  background: rgba(59, 130, 246, 1);
+  border-radius: 6px;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset -2px 0 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* Indicador de grip */
+.react-resizable-handle-e::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  width: 3px;
+  height: 20px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+/* Borde inferior (S) - MÃ¡s visible y fÃ¡cil de agarrar */
+.react-resizable-handle-s {
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  cursor: s-resize;
+  background: transparent;
+}
+
+.react-resizable-handle-s::before {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  width: 80px;
+  height: 5px;
+  transform: translateX(-50%);
+  background: rgba(59, 130, 246, 1);
+  border-radius: 6px;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.6),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* Indicador de grip */
+.react-resizable-handle-s::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  width: 20px;
+  height: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+/* Borde izquierdo (W) */
+.react-resizable-handle-w {
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 40px;
+  transform: translateY(-50%);
+  cursor: w-resize;
+}
+
+.react-resizable-handle-w::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 3px;
+  height: 20px;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(59, 130, 246, 0.9),
+    transparent
+  );
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* Borde superior (N) */
+.react-resizable-handle-n {
+  top: 0;
+  left: 50%;
+  width: 40px;
+  height: 8px;
+  transform: translateX(-50%);
+  cursor: n-resize;
+}
+
+.react-resizable-handle-n::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 20px;
+  height: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(59, 130, 246, 0.9),
+    transparent
+  );
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* === EFECTOS HOVER EN HANDLES === */
+
+/* === EFECTOS HOVER EN HANDLES === */
+
+/* Esquinas - Escalado y cambio de color en hover */
+.react-resizable-handle-se:hover::before,
+.react-resizable-handle-ne:hover::before,
+.react-resizable-handle-sw:hover::before,
+.react-resizable-handle-nw:hover::before {
+  transform: scale(1.1);
+  border-width: 6px;
+  width: 28px;
+  height: 28px;
+  border-color: rgba(99, 102, 241, 1);
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.9),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Puntos de agarre hover - mÃ¡s prominentes */
+.react-resizable-handle-se:hover::after,
+.react-resizable-handle-ne:hover::after,
+.react-resizable-handle-sw:hover::after,
+.react-resizable-handle-nw:hover::after {
+  transform: scale(1.3);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(99, 102, 241, 1);
+  border-width: 4px;
+  box-shadow:
+    0 0 12px rgba(99, 102, 241, 1),
+    0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Bordes - MÃ¡s grandes y brillantes en hover */
+.react-resizable-handle-e:hover::before,
+.react-resizable-handle-w:hover::before {
+  height: 100px;
+  width: 6px;
+  background: rgba(99, 102, 241, 1);
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.9),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.react-resizable-handle-s:hover::before,
+.react-resizable-handle-n:hover::before {
+  height: 6px;
+  width: 100px;
+  background: rgba(99, 102, 241, 1);
+  box-shadow:
+    0 0 20px rgba(99, 102, 241, 0.9),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* Grips mÃ¡s visibles en hover */
+.react-resizable-handle-e:hover::after,
+.react-resizable-handle-w:hover::after {
+  height: 30px;
+  width: 4px;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 
+    0 0 8px rgba(99, 102, 241, 0.8),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.react-resizable-handle-s:hover::after,
+.react-resizable-handle-n:hover::after {
+  width: 30px;
+  height: 4px;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 
+    0 0 8px rgba(99, 102, 241, 0.8),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* === FEEDBACK VISUAL SIMPLIFICADO === */
+
+/* Widget durante resize - FIX: overflow hidden para evitar contenido desbordado */
+.react-grid-item.resizing {
+  z-index: 100;
+  transition: none !important;
+  border: 2px dashed rgba(99, 102, 241, 0.75) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.45);
+  overflow: hidden !important;
+}
+
+/* Evitar que el contenido se desborde durante resize */
+.react-grid-item.resizing > * {
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* === PLACEHOLDER (GUÍA VISUAL) === */
+
+.react-grid-placeholder {
+  border: 2px dashed rgba(148, 163, 184, 0.7) !important;
+  border-radius: 10px !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+  transition: none !important;
+}
+
+/* === DRAG HANDLE === */
+
+.drag-handle {
+  cursor: move;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.drag-handle:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* === GRID EN MODO EDICIÓN === */
+
+/* Grid visible con líneas guía */
+.dashboard-grid.editing {
+  position: relative;
+  animation: grid-fade-in 0.3s ease-out;
+}
+
+@keyframes grid-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* === TRANSICIONES Y ANIMACIONES === */
+
+/* Transiciones suaves para widgets */
+.react-grid-item {
+  transition: all 0.2s ease-out;
+}
+
+/* Widget siendo arrastrado - feedback más claro */
+.react-grid-item.react-grid-item-dragging {
+  transition: none;
+  z-index: 100;
+  box-shadow: 
+    0 0 0 3px rgba(16, 185, 129, 0.4),
+    0 16px 48px rgba(0, 0, 0, 0.4) !important;
+  transform: scale(1.03) rotate(1deg);
+  opacity: 0.95;
+  border: 2px solid rgba(16, 185, 129, 0.6) !important;
+  border-radius: 12px;
+}
+
+/* Cursor durante drag */
+.react-grid-item.react-grid-item-dragging * {
+  cursor: grabbing !important;
+}
+
+/* Transformaciones CSS */
+.react-grid-item.cssTransforms {
+  transition-property: transform, box-shadow;
+}
+
+/* === EFECTOS EN WIDGETS === */
+
+.dashboard-grid-item {
+  transition: box-shadow 0.2s ease;
+}
+
+.dashboard-grid-item:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 768px) {
+  /* Ajustes de tamaï¿½o para controles tï¿½ctiles */
+  .react-resizable-handle-se,
+  .react-resizable-handle-ne,
+  .react-resizable-handle-sw,
+  .react-resizable-handle-nw {
+    width: 32px;
+    height: 32px;
+  }
+
+  .react-resizable-handle-e,
+  .react-resizable-handle-w {
+    width: 12px;
+    height: 56px;
+  }
+
+  .react-resizable-handle-s,
+  .react-resizable-handle-n {
+    width: 56px;
+    height: 12px;
+  }
+}
+  /* === ACCESIBILIDAD === */
+
+/* Foco para navegaciÃ³n por teclado */
+.react-resizable-handle:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.8);
+  outline-offset: 2px;
+}
+
+/* Reduce motion para usuarios con preferencias */
+@media (prefers-reduced-motion: reduce) {
+  .react-resizable-handle,
+  .react-grid-item,
+  .dashboard-grid-item,
+  .drag-handle {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* === NUEVOS COMPONENTES: ResizeOverlay y GridVisualizer === */
+
+/* Animaciones suaves para fade-in */
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation: animate-in 0.2s ease-out;
+}
+
+.fade-in {
+  animation: fade-in 0.3s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.zoom-in-95 {
+  animation: zoom-in-95 0.2s ease-out;
+}
+
+@keyframes zoom-in-95 {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.slide-in-from-top-2 {
+  animation: slide-in-from-top-2 0.3s ease-out;
+}
+
+@keyframes slide-in-from-top-2 {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Transiciones para el GridVisualizer */
+.grid-visualizer {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Estilos adicionales para mejorar la integraciÃ³n */
+.dashboard-grid {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Z-index management para overlays */
+.resize-overlay {
+  z-index: 9999;
+}
+
+.grid-visualizer {
+  z-index: 0;
+}
+
+/* Mejora del cursor durante operaciones */
+body.is-resizing {
+  cursor: nwse-resize !important;
+  user-select: none;
+}
+
+body.is-dragging {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+/* Overlay oscuro sutil durante operaciones crÃ­ticas */
+.dashboard-operation-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.02);
+  z-index: 9998;
+  transition: opacity 0.2s ease;
+}
+
+/* Efecto de highlighting para el widget activo */
+.react-grid-item.active {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4),
+              0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateZ(0);
+}
+
+/* Smooth scroll para mejor UX */
+.dashboard-container {
+  scroll-behavior: smooth;
+}
+
+/* === FIN DASHBOARD GRID STYLES === */
+
+
+

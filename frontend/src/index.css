@@ -1,0 +1,277 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+
+  /* PWA Safe Areas */
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Chart Colors - Professional Palette (shadcn/ui inspired) */
+  --chart-1: 139 92 246;   /* Purple */
+  --chart-2: 59 130 246;   /* Blue */
+  --chart-3: 16 185 129;   /* Green */
+  --chart-4: 245 158 11;   /* Amber */
+  --chart-5: 239 68 68;    /* Red */
+  --chart-6: 236 72 153;   /* Pink */
+  --chart-7: 14 165 233;   /* Sky */
+  --chart-8: 34 197 94;    /* Emerald */
+  --chart-9: 251 146 60;   /* Orange */
+  --chart-10: 168 85 247;  /* Violet */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #60a5fa;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #93c5fd;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Background base oscuro para PWA - simula el fondo del sistema */
+  background: #020617;
+  /* Evitar bounce en iOS */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Gradiente principal que se camufla con el sistema */
+  background: linear-gradient(
+    to bottom,
+    #020617 0%,
+    #0f172a 50%,
+    #1e293b 100%
+  );
+  position: relative;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Force dark theme for select dropdowns - no blue highlights */
+select {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #111827 !important;
+  color: white !important;
+  padding: 0.5rem 0.75rem;
+}
+
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #1f2937 !important;
+  background: #1f2937 !important;
+  color: white !important;
+}
+
+select option:checked {
+  background: linear-gradient(0deg, #1f2937 0%, #1f2937 100%) !important;
+}
+
+/* Remove blue highlight completely */
+select option::selection {
+  background-color: #374151 !important;
+  color: white !important;
+}
+
+select:focus option:checked {
+  background: #1f2937 !important;
+}
+
+/* PWA Animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* PWA Install Button Pulse */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Widget Fade-in Animation - Evita flash visual al cargar */
+@keyframes widget-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-widget-fade-in {
+  animation: widget-fade-in 0.3s ease-out;
+}
+
+/* ============================================
+   PWA SAFE AREAS - Estilo ChatGPT / Spotify
+   ============================================ */
+
+/* Contenedor principal con zonas seguras */
+.safe-area-stack {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    #020617 0%,
+    #0f172a 50%,
+    #1e293b 100%
+  );
+}
+
+/* Padding inline (izquierda/derecha) para contenido */
+.safe-area-inline {
+  padding-left: max(env(safe-area-inset-left, 0px), 1rem);
+  padding-right: max(env(safe-area-inset-right, 0px), 1rem);
+}
+
+/* Gradiente superior - se camufla con la status bar del sistema */
+.safe-area-stack::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  height: calc(env(safe-area-inset-top, 0px) + 100px);
+  background: linear-gradient(
+    to bottom,
+    #020617 0%,
+    rgba(2, 6, 23, 0.99) 10%,
+    rgba(2, 6, 23, 0.97) 20%,
+    rgba(2, 6, 23, 0.92) 30%,
+    rgba(2, 6, 23, 0.85) 40%,
+    rgba(2, 6, 23, 0.7) 50%,
+    rgba(2, 6, 23, 0.5) 60%,
+    rgba(2, 6, 23, 0.3) 70%,
+    rgba(2, 6, 23, 0.15) 85%,
+    rgba(2, 6, 23, 0) 100%
+  );
+}
+
+/* Para elementos que necesitan estar en el top con safe area */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Para modales y overlays fullscreen */
+.safe-fullscreen {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Soporte para notch en landscape (iPhone X+) */
+@supports (padding: max(0px)) {
+  .safe-area-inline {
+    padding-left: max(env(safe-area-inset-left, 0px), 1rem);
+    padding-right: max(env(safe-area-inset-right, 0px), 1rem);
+  }
+}
+
+/* Ajustes específicos para iOS */
+@supports (-webkit-touch-callout: none) {
+  /* iOS detected */
+  .safe-area-stack::before {
+    /* Gradiente más largo y suave en iOS para cubrir mejor la status bar */
+    height: calc(env(safe-area-inset-top, 0px) + 140px);
+    background: linear-gradient(
+      to bottom,
+      #020617 0%,
+      rgba(2, 6, 23, 1) 5%,
+      rgba(2, 6, 23, 0.98) 15%,
+      rgba(2, 6, 23, 0.95) 25%,
+      rgba(2, 6, 23, 0.88) 35%,
+      rgba(2, 6, 23, 0.75) 45%,
+      rgba(2, 6, 23, 0.6) 55%,
+      rgba(2, 6, 23, 0.4) 65%,
+      rgba(2, 6, 23, 0.2) 80%,
+      rgba(2, 6, 23, 0) 100%
+    );
+  }
+}
+
